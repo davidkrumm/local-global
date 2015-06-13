@@ -1,10 +1,9 @@
 /*
 This is an implementation of Algorithm 3.8 in the article "A local-global principle in the dynamics of quadratic polynomials".
-Assuming f is a quadratic polynomial and n is a positive integer for which the local-global principle fails, this code
-produces a finite list of groups containing a group isomorphic to the Galois group of the n-th dynatomic polynomial of f.
+More precisely, this is Magma code for the case s = 2 of the algorithm.
 */
 
-//Given n, computes the degree of the n-th dynatomic polynomial of a quadratic polynomial.
+//An auxiliary function to compute the degree of the n-th dynatomic polynomial of a quadratic polynomial.
 dynatomic_degree := function(n)
 degree := 0;
 for d in Divisors(n) do
@@ -13,14 +12,14 @@ end for;
 return degree;
 end function;
 
-//This procedure computes a list of possible Galois groups of the n-th dynatomic polynomial.
+//The main function, which corresponds to Algorithm 3.8 in the paper.
 galois_candidates := procedure(n);
 N := dynatomic_degree(n);
 print "Degree of dynatomic polynomial: N =", N;
 r := ExactQuotient(N,n);
 print "Number of cycles: r =", r;
 
-//Build the permutation pi
+//Construct the permutation pi
 cycles := [ ];
 for i := 0 to r - 1 do
 cycle_i := {@ @}; //the i-th cycle in the decomposition of pi
@@ -57,7 +56,7 @@ end for;
 //print "Stabilizer union:", stabilizer_union;
 
 //Determine the list of candidates for the Galois group of the n-th dynatomic polynomial
-L := {};
+candidate_groups := {};
 for H in W_subgroups do
 H_set := ElementSet(W, H);
 if H_set subset stabilizer_union then
@@ -69,13 +68,13 @@ break;
 end if;
 end for;
 if is_not_contained_in_stabilizer then
-Include(~L, H);
+Include(~candidate_groups, H);
 end if;
 end if;
 end for;
 
-print "Candidate subgroups and their corresponding set of indices:";
-for H in L do
+print "Candidate subgroups and their corresponding sets of indices:";
+for H in candidate_groups do
 print "\nSubgroup order:", Order(H);
 print "Subgroup generators:", FewGenerators(H);
 indices := {};
