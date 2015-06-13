@@ -1,0 +1,67 @@
+/*
+Given a separable polynomial F with rational coefficients, this function computes
+the density of the set of primes p such that F has a root in the p-adic field Q_p.
+*/
+
+bb_density := function(F)
+L := SplittingField(F);
+G, Aut,tau := AutomorphismGroup(L);
+// Find the irreducible factors of F.
+factors := {@ @};
+for pair in Factorization(F) do
+Include(~factors, pair[1]);
+end for;
+// Fix a root of each factor and compute the corresponding Galois groups.
+fixed_groups := {};
+for polynomial in factors do
+bool, theta := HasRoot(polynomial, L);
+H := {};
+for g in G do
+if tau(g)(theta) eq theta then
+Include(~H, g);
+end if;
+end for;
+Include(~fixed_groups, H);
+end for;
+// Compute the union of the fixed groups.
+U := {};
+for H in fixed_groups do
+U := U join H;
+end for;
+// Compute the union of the conjugates of U.
+conjugate_union := {};
+for sigma in G do
+this_conjugate := {};
+for u in U do
+Include(~this_conjugate, u^sigma);
+end for;
+conjugate_union := conjugate_union join this_conjugate;
+end for;
+return #conjugate_union/#G;
+end function;
+
+
+//Below are a few tests for the density code.
+
+//This function computes the proportion of primes up to B for which F has a p-adic root.
+estimate_density := function(F, B)
+root_primes := {};
+all_primes := PrimesUpTo(B);
+for p in all_primes do
+if HasRoot(ChangeRing(F, pAdicField(p : Precision := 1000))) then
+Include(~root_primes, p);
+end if;
+end for;
+return RealField() ! (#root_primes/#all_primes);
+end function;
+
+//For a few polynomials, compute the density and compare it to an estimate.
+_<x> := PolynomialRing(Rationals());
+R := RealField();
+polys := {@x - 3, x^2 + 17, x^3 - x + 29, (x^2 - 2)*(x^2 - 3)*(x^2 - 6), x^4 - x + 7,
+x^8 - 4*x^7 - 16*x^6 + 84*x^5 - 6*x^4 - 364*x^3 + 584*x^2 - 836*x + 1021@};
+for F in polys do
+R ! bb_density(F);
+estimate_density(F, 10^5);
+"\n";
+end for;
