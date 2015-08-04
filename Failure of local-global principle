@@ -1,5 +1,5 @@
 /*
-This is an implementation of Algorithm 3.8 in the article "A local-global principle in the dynamics of quadratic polynomials".
+This is an implementation of Algorithm 3.10 in the article "A local-global principle in the dynamics of quadratic polynomials".
 More precisely, this is Magma code for the case s = 2 of the algorithm.
 */
 
@@ -12,7 +12,7 @@ end for;
 return degree;
 end function;
 
-//The main function, which corresponds to Algorithm 3.8 in the paper.
+//The main function, which corresponds to Algorithm 3.10 in the paper.
 galois_candidates := procedure(n);
 N := dynatomic_degree(n);
 print "Degree of dynatomic polynomial: N =", N;
@@ -55,7 +55,7 @@ end for;
 //print "Stabilizers:", stabilizers;
 //print "Stabilizer union:", stabilizer_union;
 
-//Determine the list of candidates for the Galois group of the n-th dynatomic polynomial
+//Determine the list of candidates for the Galois group of the n-th dynatomic polynomial.
 candidate_groups := {};
 for H in W_subgroups do
 H_set := ElementSet(W, H);
