@@ -19,7 +19,7 @@ print "Degree of dynatomic polynomial: N =", N;
 r := ExactQuotient(N,n);
 print "Number of cycles: r =", r;
 
-//Construct the permutation pi
+//Construct the permutation pi.
 cycles := [ ];
 for i := 0 to r - 1 do
 cycle_i := {@ @}; //the i-th cycle in the decomposition of pi
