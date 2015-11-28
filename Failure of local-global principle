@@ -1,0 +1,74 @@
+"""
+This is a Sage implementation of Algorithm 3.10 in the article
+'A local-global principle in the dynamics of quadratic polynomials' by David Krumm.
+"""
+
+def group_contained_in_stabilizer_union(H, X):
+  """
+  Determine whether the group H is contained in the
+  union of the stabilizers of the elements in X.
+  """
+  for h in H:
+    if any(h(x) == x for x in X):
+      continue
+    return False
+  return True
+
+def group_contained_in_stabilizer(H, x):
+  """
+  Determine whether the group H is contained in the stabilizer of x.
+  """
+  return all(h(x) == x for h in H.gens_small())
+
+
+def galois_candidates(n, s):
+  """
+  Carry out algorithm 3.10
+  """
+  N = sum(moebius(n//d)*s^d for d in ZZ(n).divisors())
+  r = N // n
+  print 'N = {}, r = {}'.format(N,r)
+
+  # Construct the permutation pi.
+  pi_cycles = []
+  for i in xrange(r):
+    cycle_base = n*i
+    pi_cycles.append(tuple(cycle_base + j for j in xrange(1, n + 1)))
+  SN = SymmetricGroup(N)
+  pi = SN(pi_cycles)
+  print 'pi = {}'.format(pi)
+
+  # Compute the centralizer of pi.
+  W = SN.centralizer(pi)
+  print 'Order of W: {}'.format(W.order())
+  print 'Generators of W: {}'.format(W.gens_small())
+
+  # Find representatives for the conjugacy classes of subgroups of W.
+  conjugacy_class_reps = W.conjugacy_classes_subgroups()
+  print 'Number of conjugacy classes: {}'.format(len(conjugacy_class_reps))
+
+  ni_list = [n*i for i in xrange(1, r + 1)]
+  galois_group_list = []
+
+  # Test the containment relations in step 6 of Algorithm 3.10.
+  for H in conjugacy_class_reps:
+    if not group_contained_in_stabilizer_union(H, ni_list):
+      continue
+    if any(group_contained_in_stabilizer(H, x) for x in ni_list):
+      continue
+    galois_group_list.append(H)
+  print 'Number of Galois group candidates: {}'.format(len(galois_group_list))
+
+  # Compute generators and indices of stabilizers for every Galois group candidate.
+  for H in galois_group_list:
+    print 'Generators for this group: {}'.format(H.gens_small())
+    index_set = set(H.order() // H.stabilizer(x).order() for x in ni_list)
+    print 'Indices for this group: {}'.format(list(index_set))
+
+"""
+Sample use:
+time galois_candidates(4,2)
+"""
+
+
+
